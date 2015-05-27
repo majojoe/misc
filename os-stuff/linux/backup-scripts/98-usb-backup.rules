@@ -1,0 +1,1 @@
+SUBSYSTEM=="block", ATTRS{idProduct}=="1840", ATTRS{idVendor}=="13fd", ACTION=="add", SYMLINK+="backup", RUN+="/usr/local/bin/usb-backup.sh %k"
