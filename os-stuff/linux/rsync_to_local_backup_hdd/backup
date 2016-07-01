@@ -1,0 +1,6 @@
+#!/bin/sh -e
+# backup daily all data
+# don't forget the slash at the end of the paths
+nice -19 rsync -a --delete /Download/ /backup/rsync/Download/
+nice -19 rsync -a --delete /home/ /backup/rsync/home/
+nice -19 rsync -a --delete /public/ /backup/rsync/public/
