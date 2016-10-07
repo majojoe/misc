@@ -1,0 +1,2 @@
+To setup a remote connection setup a ssh keyfile in the directory provided. To use that without user interaction, eighter the passphrase must be emtpy or the daemon must be started in the background.
+change the directories and users to your needs and copy the file "backup_rsync_remote" to /etc/cron.daily/

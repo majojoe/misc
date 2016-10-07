@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#rsync --delete -avz /media/jo/77170345-dea2-4a10-962c-ed434bbf85e1/Download/ /Download/
+#rsync --delete -avz /media/jo/77170345-dea2-4a10-962c-ed434bbf85e1/home/jo/VirtualBox\ VMs/win\ xp\ test/ /home/jo/VirtualBox\ VMs/win\ xp\ test/
+
+rsync -avz -e "ssh -l ellen -i /home/ellen/.ssh_backup/id_ssh_backup" /home/ellen/Dokumente/ ellen@jo-linux.local:/home/ellen/Dokumente/
+
+      
