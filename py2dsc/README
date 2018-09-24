@@ -1,0 +1,3 @@
+To create a debian package from a python package do the following:
+- sudo pip install stdeb
+- py2dsc-deb --with-python3=True TARFILE.tar
