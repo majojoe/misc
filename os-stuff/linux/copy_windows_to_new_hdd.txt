@@ -1,0 +1,9 @@
+Um windows auf eine neue Festplatte zu kopieren muss zuerst der MBR mit Partitionstabelle kopiert werden. Dieser befindet sich in den ersten 512 Bytes der Festplatte
+z.B. mittels Clonezilla Command Line:
+  dd if=/dev/sda of=/dev/sdb bs=512 count=1
+Dann das System rebooten damit Clonezilla die neue Plattengeometrie von sdb kennt.
+Jetzt Partition für Partition kopieren.
+Wird mit einem grub2 gestartet vom Linux aus noch Folgendes ausführen:
+sudo update-grub
+
+Jetzt sollte von der neuen hdd gestartet werden können.
