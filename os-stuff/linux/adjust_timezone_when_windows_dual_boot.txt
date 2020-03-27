@@ -1,0 +1,4 @@
+Since windows is using the local time and Linux UTC, in a dual boot system the time isn't correct.
+Make Linux using local time:
+
+timedatectl set-local-rtc 1 --adjust-system-clock 
