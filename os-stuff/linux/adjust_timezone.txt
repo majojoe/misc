@@ -1,0 +1,3 @@
+To reconfigure the time zone on a server:
+
+dpkg-reconfigure tzdata 

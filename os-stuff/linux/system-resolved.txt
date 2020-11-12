@@ -1,0 +1,14 @@
+Um den systemd-resolved zu deaktivieren und die Konfiguration ausschließlich über /etc/resolv.conf wieder zu ermöglichen:
+
+~]$ sudo systemctl stop systemd-resolved
+~]$ sudo systemctl disable systemd-resolved
+~]$ sudo unlink /etc/resolv.conf
+~]$ sudo nano /etc/resolv.conf
+nameserver 192.168.122.70
+search ad.ricosharp.com
+~]$ sudo reboot
+
+
+
+
+ 

@@ -1,0 +1,3 @@
+Deactivate cloud-init:
+sudo touch /etc/cloud/cloud-init.disabled
+ 
