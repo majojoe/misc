@@ -1,0 +1,3 @@
+For static IP Adresses the example configuration in 
+/usr/share/doc/netplan/examples/static.yaml
+can be used.
