@@ -1,0 +1,10 @@
+reconfigure keyboard:
+Es wird systemweit nur das keyboard layout umgestellt:
+
+dpkg-reconfigure keyboard-configuration
+
+
+reconfigure locales:
+Es wird systemweit die Sprache, keyboard, Format usw. umgestellt.
+
+dpkg-reconfigure locales
