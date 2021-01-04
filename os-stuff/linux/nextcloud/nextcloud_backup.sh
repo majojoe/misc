@@ -21,7 +21,7 @@ echo "Export complete"
 echo ""
 echo "remove all old backups, but keep the 2 newest..."
 # Remove all backups but the newest 2 ones
-FILES_TO_REMOVE=$(find "${BACKUP_DIR}/Backups/" -maxdepth 0 -type f -printf '%T@\t"%p"\n' | sort -r -t $'\t' -g | tail +3 | cut -d $'\t' -f 2-)
+FILES_TO_REMOVE=$(find "${BACKUP_DIR}/Backups/" -maxdepth 1 -type f -printf '%T@\t"%p"\n' | sort -r -t $'\t' -g | tail +3 | cut -d $'\t' -f 2-)
 #remove old file if any files to remove
 if [ -n "${FILES_TO_REMOVE}" ]; then
         echo "removing files: "
