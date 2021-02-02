@@ -16,7 +16,7 @@ exec &> >(tee -a "${LOGFILE}")
 
 if [ ${KEEP_ONLY_ONE_BACKUP} -eq 1 ]; then
         echo "delete all old backups..."
-        rm "${BACKUP_DIR}/Backups/*.tar.gz"
+        rm "${BACKUP_DIR}"/Backups/*.tar.gz
         echo "old backups deleted"
 fi
 
@@ -28,7 +28,7 @@ echo "Starting Nextcloud export..."
 nextcloud.export
 echo "Export complete"
 
-echo ""    
+echo ""
 if [ ${KEEP_ONLY_ONE_BACKUP} -eq 0 ]; then
         echo "remove all old backups, but keep the 2 newest..."
         # Remove all backups but the newest 2 ones
@@ -47,13 +47,17 @@ fi
 echo ""
 echo "Compressing backup..."
 # Compress backed up folder
-tar -zcf "${BACKUP_DIR}/Backups/$(date '+%Y-%m-%d_%H-%M-%S').tar.gz" /var/snap/nextcloud/common/backups/*
+tar -zcf "${BACKUP_DIR}/Backups/$(date '+%Y-%m-%d_%H-%M-%S').tar.gz" -C /var/snap/nextcloud/common/ backups
 echo "Nextcloud backup successfully compressed to ${BACKUP_DIR}/Backups"
 
 # Remove uncompressed backup data
+echo "remove uncompressed backup data"
 rm -rf /var/snap/nextcloud/common/backups/*
 
 echo "Removing backup Logs older than 50 days..."
 # Remove logs older than 50 days
 find "${BACKUP_DIR}"/Backups/Logs -mtime +50 -type f -delete
 echo "Complete"
+
+echo "Nextcloud backup completed successfully."
+
