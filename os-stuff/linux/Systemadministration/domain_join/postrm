@@ -1,0 +1,18 @@
+#!/bin/bash
+
+TIMESYNC_FILE=/etc/systemd/timesyncd.conf
+MKHOMEDIR_FILE=/usr/share/pam-configs/mkhomedir
+
+#backup old timesyncd file
+if [ -f ${TIMESYNC_FILE}.bak ]; then
+        cp ${TIMESYNC_FILE}.bak ${TIMESYNC_FILE}
+fi
+
+#backup old mkhomedir file
+if [ -f ${MKHOMEDIR_FILE}.bak ]; then
+        cp ${MKHOMEDIR_FILE}.bak ${MKHOMEDIR_FILE}
+fi
+
+systemctl restart systemd-timesyncd.service
+
+apt remove krb5-user
