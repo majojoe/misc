@@ -1,42 +1,7 @@
  #!/bin/bash
 
-TIMEZONE="Europe/Berlin"
-
-choose_timezone () {
-        local TIMELIST=$(timedatectl list-timezones)
-        local COUNTER=1
-        local RADIOLIST=""  # variable where we will keep the list entries for radiolist dialog
-        local TIMEZONE_NR=0
-        
-        for i in $TIMELIST; do
-                RADIOLIST="$RADIOLIST $COUNTER $i off "
-                let COUNTER=COUNTER+1
-        done
-
-        TIMEZONE_NR=$(dialog --backtitle "choose timezone" --radiolist "Select option:" 0 0 $COUNTER $RADIOLIST 3>&1 1>&2 2>&3 3>&-)
-
-        COUNTER=1
-        for i in $TIMELIST; do
-                if [ $COUNTER -eq $TIMEZONE_NR ]; then
-                        TIMEZONE=$i
-                        break
-                fi
-                let COUNTER=COUNTER+1
-        done
-}
- 
 OS_NAME=$(lsb_release -i | cut -f 2 -d ':' | xargs)
 OS_VERSION=$(lsb_release -r | cut -f 2 -d ':' | xargs)
-
-DOMAIN_CONTROLLER=$(dialog --title "domain controller" --default-button ok --inputbox "Enter the domain controller you want to use as NTP server. E.g.: srv-dc01.example.local" 10 30 "" 3>&1 1>&2 2>&3 3>&-)
-#choose the timezone
-choose_timezone
-
-#replace the timeserver with domain controller
-echo "set timezone"
-sed -i "s/NTP=/NTP=${DOMAIN_CONTROLLER}/g" /etc/systemd/timesyncd.conf
-timedatectl set-timezone "${TIMEZONE}"
-systemctl restart systemd-timesyncd.service
 
 #set OS name and version in realmd.conf
 echo "set OS"
