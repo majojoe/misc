@@ -39,9 +39,9 @@ choose_timezone () {
  
 #find domain controller
 DNS_IP=$(systemd-resolve --status | grep "DNS Servers" | cut -d ':' -f 2 | tr -d '[:space:]')
-DNS_SERVER_NAME=$(dig +noquestion -x 192.168.10.42 | grep in-addr.arpa | cut  -f 4 )
+DNS_SERVER_NAME=$(dig +noquestion -x ${DNS_IP} | grep in-addr.arpa | awk -F'PTR' '{print $2}' | tr -d '[:space:]' )
 DNS_SERVER_NAME=${DNS_SERVER_NAME%?}
-DOMAIN_NAME="echo ${DNS_SERVER_NAME} | $(cut -d '.' -f2-)"
+DOMAIN_NAME=$(echo ${DNS_SERVER_NAME} | cut -d '.' -f2-)
 DOMAIN_CONTROLLER=$(dialog --title "domain controller" --inputbox "Enter the domain controller you want to use as NTP server. E.g.: srv-dc01.example.local" 10 30 "${DNS_SERVER_NAME}" 3>&1 1>&2 2>&3 3>&-) 
  
 #choose the timezone
@@ -59,14 +59,6 @@ timedatectl set-timezone "${TIMEZONE}"
 systemctl restart systemd-timesyncd.service
 
 
-#install krb5-user package in order to not get any dialogs presented, since the configuration files must be there, first.
-echo "install krb5-user"
-apt install krb5-user -y
-#insert rdns=false in section [libdefaults]
-sed '/^[libdefaults].*/a rdns=false' /etc/krb5.conf
-
-systemctl restart sssd
-
 DOMAIN_NAME=$(dialog --title "domain name" --inputbox "Enter the domain name you want to join to. E.g.: example.com or example.local" 10 30 "${DOMAIN_NAME}" 3>&1 1>&2 2>&3 3>&-)
 
 JOIN_USER=$(dialog --title "User for domain join" --inputbox "Enter the user to use for the domain join" 10 30 "" 3>&1 1>&2 2>&3 3>&-)
@@ -74,6 +66,12 @@ JOIN_USER=$(dialog --title "User for domain join" --inputbox "Enter the user to 
 JOIN_PASSWORD=$(dialog --title "Password" --clear --insecure --passwordbox "Enter your password" 10 30 "" 3>&1 1>&2 2>&3 3>&-)
 echo "${JOIN_PASSWORD}" | realm -v join -U "${JOIN_USER}" "${DOMAIN_NAME}"
 JOIN_PASSWORD=""
+
+
+#remove later again
+exit 0
+
+
 
 PERMITTED_GROUPS=$(dialog --title "permitted groups"  --inputbox "Enter the groups of the domain that shall be permitted to log in. Groups must be comma separated." 10 30 "" 3>&1 1>&2 2>&3 3>&-)
 
@@ -86,3 +84,11 @@ for i in ${PERMITTED_GROUPS}
 do
     realm permit -g "${i}" 
 done
+
+#install krb5-user package in order to not get any dialogs presented, since the configuration files must be there, first.
+echo "install krb5-user"
+apt install krb5-user -y
+#insert rdns=false in section [libdefaults]
+sed '/^[libdefaults].*/a rdns=false' /etc/krb5.conf
+
+systemctl restart sssd
