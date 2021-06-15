@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 
 install(FILES realmd.conf DESTINATION /etc)
+install(FILES krb5.conf.unconfigured DESTINATION /etc)
 install(FILES domain_join.sh DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 
