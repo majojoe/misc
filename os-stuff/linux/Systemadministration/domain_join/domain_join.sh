@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
+
+trap onexit ERR
+
+#trap handler 
+onexit() { 
+        echo "!!!!!!!!!!!!!!!!! ERROR while executing domain join !!!!!!!!!!!!!!!!!"
+        exit 1
+}
+
 
 JOIN_USER=""
 PERMITTED_GROUPS=""
@@ -43,7 +52,13 @@ DNS_SERVER_NAME=$(dig +noquestion -x ${DNS_IP} | grep in-addr.arpa | awk -F'PTR'
 DNS_SERVER_NAME=${DNS_SERVER_NAME%?}
 DOMAIN_NAME=$(echo ${DNS_SERVER_NAME} | cut -d '.' -f2-)
 DOMAIN_CONTROLLER=$(dialog --title "domain controller" --inputbox "Enter the domain controller you want to use as NTP server. \\nE.g.: srv-dc01.example.local" 12 40 "${DNS_SERVER_NAME}" 3>&1 1>&2 2>&3 3>&-) 
- 
+
+#set domain name in realm configuration
+REALMD_FILE="/etc/realmd.conf"
+if [ -f "${REALMD_FILE}" ]; then
+        sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" "${REALMD_FILE}"
+fi
+
 #choose the timezone
 choose_timezone
 
@@ -81,6 +96,11 @@ apt install krb5-user -y
 
 PERMITTED_GROUPS=$(dialog --title "permitted groups"  --inputbox "Enter the groups of the domain that shall be permitted to log in. Groups must be comma separated.\\nLeave blank if you want allow all domain users to login." 12 50 "" 3>&1 1>&2 2>&3 3>&-)
 
+#remove spaces
+PERMITTED_GROUPS=$(echo ${PERMITTED_GROUPS} | tr -d '[:space:]')
+
+clear
+
 if [ -z "${PERMITTED_GROUPS}" ]; then
         echo "permit all users to login"
         realm permit --all
@@ -88,15 +108,18 @@ else
         #allow all groups that shall be able to log in
         echo "allow given groups"
         realm deny --all
-        realm permit "${JOIN_USER}"
+        realm permit "${JOIN_USER}@${DOMAIN_NAME}"
+        SAVEIFS=$IFS
         IFS=","
         for i in ${PERMITTED_GROUPS}
         do
-        realm permit -g "${i}" 
+                realm permit -g "${i}" 
         done
+        IFS=$SAVEIFS
 fi
 
 systemctl restart sssd
 
-echo "############### SUCCESSFUL #################"
-echo 0
+
+
+echo "############### DOMAIN JOIN SUCCESSFUL #################"
