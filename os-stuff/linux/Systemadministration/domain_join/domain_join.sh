@@ -1,11 +1,18 @@
 #!/bin/bash -e
 
-trap onexit ERR
+trap onerr ERR
+trap onexit EXIT
+
+#trap handler 
+onerr() { 
+        echo "!!!!!!!!!!!!!!!!! ERROR while executing domain join !!!!!!!!!!!!!!!!!"
+        exit 1
+}
 
 #trap handler 
 onexit() { 
-        echo "!!!!!!!!!!!!!!!!! ERROR while executing domain join !!!!!!!!!!!!!!!!!"
-        exit 1
+        # delete password on exit
+        JOIN_PASSWORD=""
 }
 
 
@@ -14,31 +21,38 @@ PERMITTED_GROUPS=""
 JOIN_PASSWORD=""
 DOMAIN_NAME=""
 TIMEZONE="Europe/Berlin"
+PAM_MOUNT_FILE="/etc/security/pam_mount.conf.xml"
 
 
 
-if [ $(id -u) -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
         echo "This script must be run as root in order to join to the given domain. Exiting..."
         exit
 fi
 
 
 choose_timezone () {
-        local TIMELIST=$(timedatectl list-timezones)
-        local COUNTER=1
-        local RADIOLIST=""  # variable where we will keep the list entries for radiolist dialog
-        local TIMEZONE_NR=0
+        local TIMELIST
+        local COUNTER
+        local RADIOLIST
+        local TIMEZONE_NR
+        
+        TIMELIST=$(timedatectl list-timezones)
+        COUNTER=1
+        RADIOLIST=""  # variable where we will keep the list entries for radiolist dialog
+        TIMEZONE_NR=0
         
         for i in $TIMELIST; do
                 RADIOLIST="$RADIOLIST $COUNTER $i off "
                 let COUNTER=COUNTER+1
         done
-
+        
+        # shellcheck disable=SC2086
         TIMEZONE_NR=$(dialog --backtitle "choose timezone" --radiolist "Select option:" 0 0 $COUNTER $RADIOLIST 3>&1 1>&2 2>&3 3>&-)
 
         COUNTER=1
         for i in $TIMELIST; do
-                if [ $COUNTER -eq $TIMEZONE_NR ]; then
+                if [ $COUNTER -eq "$TIMEZONE_NR" ]; then
                         TIMEZONE=$i
                         break
                 fi
@@ -50,11 +64,13 @@ choose_timezone () {
 # set the groups that can log in 
 # first param: the join user that is used to setup domain membership
 set_group_policies () {
-        local JOIN_USER="${1}"
-        local PERMITTED_GROUPS=$(dialog --title "permitted groups"  --inputbox "Enter the groups of the domain that shall be permitted to log in. Groups must be comma separated.\\nLeave blank if you want allow all domain users to login." 12 50 "" 3>&1 1>&2 2>&3 3>&-)
+        local JOIN_USER
+        local PERMITTED_GROUPS
+        JOIN_USER="${1}"
+        PERMITTED_GROUPS=$(dialog --title "permitted groups"  --inputbox "Enter the groups of the domain that shall be permitted to log in. Groups must be comma separated.\\nLeave blank if you want allow all domain users to login." 12 50 "" 3>&1 1>&2 2>&3 3>&-)
 
         #remove spaces
-        PERMITTED_GROUPS=$(echo ${PERMITTED_GROUPS} | tr -d '[:space:]')
+        PERMITTED_GROUPS=$(echo "${PERMITTED_GROUPS}" | tr -d '[:space:]')
 
         clear
 
@@ -93,9 +109,9 @@ install_krb5_package() {
  
 #find domain controller
 DNS_IP=$(systemd-resolve --status | grep "DNS Servers" | cut -d ':' -f 2 | tr -d '[:space:]')
-DNS_SERVER_NAME=$(dig +noquestion -x ${DNS_IP} | grep in-addr.arpa | awk -F'PTR' '{print $2}' | tr -d '[:space:]' )
+DNS_SERVER_NAME=$(dig +noquestion -x "${DNS_IP}" | grep in-addr.arpa | awk -F'PTR' '{print $2}' | tr -d '[:space:]' )
 DNS_SERVER_NAME=${DNS_SERVER_NAME%?}
-DOMAIN_NAME=$(echo ${DNS_SERVER_NAME} | cut -d '.' -f2-)
+DOMAIN_NAME=$(echo "${DNS_SERVER_NAME}" | cut -d '.' -f2-)
 DOMAIN_CONTROLLER=$(dialog --title "domain controller" --inputbox "Enter the domain controller you want to use as NTP server. \\nE.g.: srv-dc01.example.local" 12 40 "${DNS_SERVER_NAME}" 3>&1 1>&2 2>&3 3>&-) 
 
 #set domain name in realm configuration
@@ -122,7 +138,7 @@ DOMAIN_NAME=$(dialog --title "domain name" --inputbox "Enter the domain name you
 
 JOIN_USER=$(dialog --title "User for domain join" --inputbox "Enter the user to use for the domain join" 10 30 "Administrator" 3>&1 1>&2 2>&3 3>&-)
 #join the given domain with the given user
-JOIN_PASSWORD=$(dialog --title "Password" --clear --insecure --passwordbox "Enter your password" 10 30 "" 3>&1 1>&2 2>&3 3>&-)
+JOIN_PASSWORD=$(dialog --title "Password" --clear --insecure --passwordbox "Enter your password for user ${JOIN_USER}" 10 30 "" 3>&1 1>&2 2>&3 3>&-)
 echo "${JOIN_PASSWORD}" | realm -v join -U "${JOIN_USER}" "${DOMAIN_NAME}"
 
 
@@ -139,30 +155,38 @@ echo "${JOIN_PASSWORD}" | kinit "${JOIN_USER}"
 # delete the password of the join user
 JOIN_PASSWORD=""
 
-smbclient -k -N  -U ${JOIN_USER} -L ${DOMAIN_CONTROLLER}
-
 echo "############### DOMAIN JOIN SUCCESSFUL #################"
 
 
 FILE_SERVER=$(dialog --title "fileserver" --inputbox "Enter the fileserver to use for mounting of drives when a user logs in. \\nE.g.: srv-file01.example.local" 12 40 "${DOMAIN_CONTROLLER}" 3>&1 1>&2 2>&3 3>&-) 
-DRIVE_LIST=$(smbclient -k -N  -U ${JOIN_USER} -L "${FILE_SERVER}" 2> /dev/null | grep Disk  | grep -v -E "ADMIN\\$|SYSVOL|NETLOGON" | cut -d " " -f 1 | grep -E "[a-zA-Z0-9]{2,}(\\$)*" | tr -d '\t')
-
-COUNTER=1
-for i in $DRIVE_LIST; do
-        CHECKLIST="$CHECKLIST $i ${COUNTER} off "
-        let COUNTER=COUNTER+1
-done
-
-DRIVE_LIST=$(dialog --backtitle "Choose Drives to mount" --checklist "Choose which drives shall be mounted when a user logs in..." 0 0 ${COUNTER} ${CHECKLIST} 3>&1 1>&2 2>&3 3>&-)
-dialog --clear
-clear
-
-for i in ${DRIVE_LIST}; do
-        MNT_POINT=$(tr -d '$')
-	echo "<volume fstype=\"cifs\" server=\"${FILE_SERVER}\" path=\"${i}\" mountpoint=\"/media/%(USER)/${MNT_POINT}\" options=\"iocharset=utf8,nosuid,nodev" uid=\"5000-999999999\" />"
-done
+DRIVE_LIST=$(smbclient -k -N  -U "${JOIN_USER}" -L "${FILE_SERVER}" 2> /dev/null | grep Disk  | grep -v -E "ADMIN\\$|SYSVOL|NETLOGON" | cut -d " " -f 1 | grep -E "[a-zA-Z0-9]{2,}(\\$)*" | tr -d '\t')
 
 
+if [ -n "${DRIVE_LIST}" ]; then
+        for i in ${DRIVE_LIST}; do
+                MNT_POINT=$(echo "${i}" | tr -d '$')
+                CHECKLIST+=("${i} /media/\$USER/${MNT_POINT} off ")
+        done
+        
+        
+        # shellcheck disable=SC2068
+        DRIVE_LIST=$(dialog --backtitle "Choose Drives to mount" --checklist "Choose which drives shall be mounted when a user logs in..." 10 60 ${#CHECKLIST[@]} ${CHECKLIST[@]} 3>&1 1>&2 2>&3 3>&-)        
+        dialog --clear
+        clear
 
+        for i in ${DRIVE_LIST}; do
+                i=$(echo ${i} | tr -d '"')
+                MNT_POINT=$(echo "${i}" | tr -d '$')
+                MOUNT_STR="volume fstype=\"cifs\" server=\"${FILE_SERVER}\" path=\"${i}\" mountpoint=\"/media/%(USER)/${MNT_POINT}\" options=\"iocharset=utf8,nosuid,nodev\" uid=\"5000-999999999\""
+                if [ -f "${PAM_MOUNT_FILE}" ]; then
+                        xmlstarlet ed --inplace -s '/pam_mount' -t elem -n "${MOUNT_STR}" "${PAM_MOUNT_FILE}"
+                else
+                        dialog --msgbox "error writing mount entries in ${PAM_MOUNT_FILE}" 5 40 3>&1 1>&2 2>&3 3>&-
+                        exit 2
+                fi
+        done
+else
+        dialog --msgbox "No Drives found for given fileserver ${FILE_SERVER}" 5 40 3>&1 1>&2 2>&3 3>&-
+fi
 
 echo "############### DOMAIN JOIN SUCCESSFUL #################"

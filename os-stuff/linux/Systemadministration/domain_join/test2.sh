@@ -10,9 +10,12 @@ DRIVE_LIST=$(smbclient -k -N  -U ${JOIN_USER} -L "${FILE_SERVER}" 2> /dev/null |
 
 COUNTER=1
 for i in $DRIVE_LIST; do
-        CHECKLIST="$CHECKLIST $i ${COUNTER} off "
+        MNT_POINT=$(echo "${i}" | tr -d '$')
+        CHECKLIST="${CHECKLIST} $i '/media/$USER/'${MNT_POINT} off "
         let COUNTER=COUNTER+1
 done
+
+echo "${CHECKLIST}"
 
 DRIVE_LIST=$(dialog --backtitle "Choose Drives to mount" --checklist "Choose which drives shall be mounted when a user logs in..." 0 0 ${COUNTER} ${CHECKLIST} 3>&1 1>&2 2>&3 3>&-)
 dialog --clear
