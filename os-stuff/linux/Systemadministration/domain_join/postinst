@@ -10,6 +10,6 @@ sed -i "s/OS-VERSION/${OS_VERSION}/g" /etc/realmd.conf
 
 #update pam auth that the homedir is created automatically
 echo "enable mkhomedir"
-pam-auth-update --enable mkhomedir
+pam-auth-update --enable dj_mkhomedir
 systemctl restart sssd
 
