@@ -1,0 +1,5 @@
+To add a user to a group in /etc/group:
+usermod -aG GROUP USERNAME
+
+Example:
+sudo usermod -aG sudo jo
