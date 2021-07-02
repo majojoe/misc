@@ -1,0 +1,4 @@
+Poweroff Windows Server via Script:
+
+powershell.exe -command " Stop-Computer -ComputerName localhost "
+

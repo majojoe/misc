@@ -1,0 +1,19 @@
+
+
+Wer Windows Server 2019 Essentials nutzt, sieht täglich mindestens eine Warnung im Dashboard: Der Windows Defender erhält offenbar keine frischen Signaturen. Verantwortlich ist das Default-Verhalten von Windows Update. In der Einstellungen-App lässt es sich jedoch nicht anpassen.
+Funktioniert mit: Server 2019
+Bildergalerie
+01Windows-Server-2019-Updates
+
+Die Vorgaben für Windows Update sehen vor, dass Aktualisierungen zwar heruntergeladen, aber nicht installiert werden. Dennoch besteht die Möglichkeit, Updates automatisch einzuspielen, und zwar über ein kleines Kommandozeilenprogramm.
+
+02Server-2019-Updates automatisieren
+
+Dazu rufen Sie die Eingabeaufforderung als Administrator auf und beantworten die nachfolgende UAC-Nachfrage mit OK. Dann tippen Sie den Befehl sconfig ein und drücken Enter. Im nächsten Dialog wechselt die Hintergrundfarbe zu Blau, und Sie sehen die aktuelle Serverkonfiguration. Insgesamt stehen 15 Optionen zur Verfügung, von denen die für unsere Zwecke relevante Windows Update-Einstellungen heißt und die Nummer 5 trägt.
+
+Diese Zahl geben Sie unten in der Befehlszeile an und drücken die Eingabetaste. Wenn Sie automatische Updates aktivieren wollen, tippen Sie a ein und schicken den Befehl per Enter ab. Ein Popup-Fenster informiert Sie anschließend über die Änderung. Das System sucht nun jeden Tag um 3 Uhr morgens Updates und installiert sie. Den Dialog mit der Serverkonfiguration können Sie danach schließen.
+03Nachteile der automatisierten Server-Updates
+
+Die neue Einstellung hat natürlich einen Nachteil. Denn dadurch erhält nicht nur der integrierte Virenschutz regelmäßige Signatur-Aktualisierungen, sondern es werden auch alle per Windows Update angebotenen Fixes automatisch installiert.
+
+Da viele dieser Patches einen Neustart des Rechners erfordern, findet auch der Reboot automatisch statt. Gegebenenfalls müssen Sie also noch die Nutzungszeiten des Servers über die Windows-Einstellungen entsprechend anpassen. (hal)
