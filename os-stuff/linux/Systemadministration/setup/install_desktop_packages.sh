@@ -27,7 +27,7 @@ download_and_install_deb_package () {
                 wget "${PACKAGE_URL}" -P "${TEMP_DIR}"
                 apt install "${TEMP_DIR}/$(basename "${PACKAGE_URL}")"
         else
-                echo " No valid tempdir. Cannot install debian package $(basename "${PACKAGE_URL}"
+                echo " No valid tempdir. Cannot install debian package $(basename ${PACKAGE_URL})"
         fi
 }
 
@@ -45,11 +45,14 @@ add_ppa_repo "gezakovacs/ppa"
 #cherrytree
 add_ppa_repo "giuspen/ppa"
 
-sudo apt install -y android-tools-adb apt-transport-https avahi-discover build-essential  chromium-browser cmake curl debconf-utils default-jdk digikam docker-compose docker.io domain-join freecad freeglut3-dev gimp gimp-help-de git gnome-keyring grsync htop inkscape  kazam kdiff3 keepass2 kipi-plugins kolourpaint krb5-user krita language-pack-gnome-de libboost-dev libglu1-mesa-dev  links2 maxima mc memtester mesa-common-dev netdiscover net-tools nmap openjdk-8-jdk-headless python3-pip qt5-default qtcreator qtmultimedia5-dev qttools5-dev sbcl   speedometer ssh sweethome3d sweethome3d-furniture-nonfree  texinfo  uuid-dev wireshark cherrytree unetbootin veracrypt
+sudo apt install -y android-tools-adb apt-transport-https avahi-discover build-essential  chromium-browser cmake curl debconf-utils default-jdk digikam docker-compose docker.io freecad freeglut3-dev gimp gimp-help-de git gnome-keyring grsync htop inkscape  kazam kdiff3 keepass2 kipi-plugins kolourpaint krb5-user krita language-pack-gnome-de libboost-dev libglu1-mesa-dev  links2 maxima mc memtester mesa-common-dev netdiscover net-tools nmap openjdk-8-jdk-headless python3-pip qt5-default qtcreator qtmultimedia5-dev qttools5-dev sbcl   speedometer ssh sweethome3d sweethome3d-furniture-nonfree  texinfo  uuid-dev wireshark cherrytree unetbootin veracrypt kontact
 
 download_and_install_deb_package https://go.skype.com/skypeforlinux-64.deb
 download_and_install_deb_package https://www.syntevo.com/downloads/smartgit/smartgit-21_1_0.deb
 download_and_install_deb_package https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
 
+sudo snap install pycharm-community --classic
+
 #Packages to download manually:
 #teams
+#opera
