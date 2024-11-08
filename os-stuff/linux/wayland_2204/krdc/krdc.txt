@@ -1,0 +1,2 @@
+Um unter KRDC eine RDP Session starten zu können muss beim Start folgende Umgebungsvariable gesetzt werden:
+QT_QPA_PLATFORM=xcb krdc
