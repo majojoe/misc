@@ -56,6 +56,10 @@ Im docker compose file muss auf die ressource verwiesen werden:
 
 ![](img/2026-06-28-07-43-20-image.png)
 
+Alternativ mit einem File und nicht mit docker secret create (docker swarm):
+
+![](img/2026-07-21-23-05-24-image.png)
+
 ## Docker Swarm
 
 Wenn zur Lastverteilung oder zur Erhöhung der Verfügbarkeit Cluster verwendet werden sollen, kann man hierzu Docker Swarm einsetzen.
@@ -86,8 +90,6 @@ restart: always
 ```
 
 ### Autoheal
-
-
 
 Um docker container, die den status unhealty erhalten gibt es das folgende docker container image:
 
