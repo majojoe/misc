@@ -1,0 +1,32 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    command:
+      # Lausche auf Docker-Events
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      
+      # Entrypoints für HTTP (Port 80) und HTTPS (Port 443) definieren
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      
+      # Globale automatische Weiterleitung von HTTP (Port 80) zu HTTPS (Port 443)
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      
+      # Lade die dynamische Konfiguration (für das Zertifikat)
+      - "--providers.file.filename=/traefik-dynamic.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-dynamic.yml:/traefik-dynamic.yml:ro
+      - ./certs:/certs:ro
+    networks:
+      - proxy-net      
+
+networks:
+  proxy-net:
+    name: proxy-net

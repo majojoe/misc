@@ -1,0 +1,10 @@
+# traefik-dynamic.yml
+tls:
+  certificates:
+    - certFile: "/certs/cert.crt"
+      keyFile: "/certs/cert.key"
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/certs/cert.crt"
+        keyFile: "/certs/cert.key"
