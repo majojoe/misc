@@ -316,3 +316,9 @@ Nachdem der Dienst läuft, binden Sie den Ordner als reguläres Netzlaufwerk ein
 6. Klicken Sie auf Fertigstellen. [2, 3, 4]
 
 Ihr Linux-Home-Verzeichnis erscheint nun als vollwertige Festplatte im Windows-Explorer. Daten, die Sie dort hineinkopieren oder ändern, sind sofort und ohne Verzögerung auf Ihrem Linux-Host verfügbar.
+
+# Mehrere Bildschirme
+
+Um mit mehreren Bildschirmen zu arbeiten:
+
+    
