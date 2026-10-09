@@ -49,6 +49,65 @@ Du benötigst zwei Image-Dateien:
 
 5. **Ganz wichtig im letzten Schritt:** Setze einen Haken bei **Konfiguration vor der Installation bearbeiten** und klicke auf "Fertigstellen". Die VM startet nun noch nicht, sondern öffnet die Hardware-Details.
 
+### Anderer Speicherort
+
+Wenn der Speicher woanders im Dateisystem als unter /var/lib/libvirt/ erstellt werden soll:
+
+setzt:
+
+#### Ordner vorbereiten: Ordner erstellen und Besitzer ändern.
+
+Erstelle den Ordner, in dem du deine Images speichern möchtest. Das kann auf einer anderen Partition sein oder direkt im Stammverzeichnis.
+
+Öffne ein Terminal und erstelle den Ordner (z. B. unter `/data/kvm-images`):
+
+Bash
+
+```
+sudo mkdir -p /data/kvm-images
+```
+
+Übertrage die Besitzrechte des Ordners an die Benutzergruppe von libvirt:
+
+Bash
+
+```
+sudo chown libvirt-qemu:kvm /data/kvm-images
+sudo chmod 775 /data/kvm-images
+```
+
+#### Storage Pool in virt-manager anlegen: Das Verzeichnis in virt-manager registrieren.
+
+Damit *virt-manager* (und libvirt) wissen, dass dieser Ordner für virtuelle Festplatten gedacht ist, musst du ihn als "Storage Pool" hinzufügen.
+
+1. Öffne den **virt-manager**.
+
+2. Klicke im Menü oben auf **Bearbeiten** -> **Verbindungsdetails**.
+
+3. Wechsle auf den Reiter **Speicher (Storage)**.
+
+4. Klicke unten links auf das grüne **Plus-Symbol (+)**, um einen neuen Pool hinzuzufügen.
+
+#### Pool konfigurieren: Pool benennen und Pfad angeben.
+
+1. Gib dem Pool einen Namen (z. B. "Daten_SSD"). Der Typ bleibt auf `dir` (Dateisystemverzeichnis). Klicke auf Vor.
+
+2. Gib im Feld **Zielpfad** den Ordner ein, den du in Schritt 1 erstellt hast (also `/data/kvm-images`).
+
+3. Klicke auf **Fertigstellen**.
+
+#### Neue VM in diesem Pool erstellen:**
+
+Wenn du jetzt eine neue virtuelle Maschine in *virt-manager* erstellst und zum Schritt der Festplattengröße kommst:
+
+1. Wähle **"Select or create custom storage" (Benutzerdefinierten Speicher auswählen oder erstellen)**.
+
+2. Klicke auf "Verwalten".
+
+3. Wähle auf der linken Seite deinen neuen Pool ("Daten_SSD") aus.
+
+4. Klicke auf das Plus-Symbol (+), um in diesem Ordner eine neue `.qcow2`-Datei zu erstellen.
+
 ## 4.UEFI und TPM 2.0 konfigurieren: Grundvoraussetzungen für Windows 11.
 
 Im sich nun öffnenden Einstellungsfenster musst du die Systemarchitektur anpassen:
@@ -66,14 +125,15 @@ Im sich nun öffnenden Einstellungsfenster musst du die Systemarchitektur anpass
 Nun passen wir die Hardware für maximale Performance an:
 
 1. **SATA/IDE-Festplatte:** Wähle deine virtuelle Festplatte aus. Ändere den "Disk bus" (Festplatten-Bus) auf **VirtIO**. (Das sorgt für eine viel schnellere Laufwerksgeschwindigkeit).
+   Falls es bereits eine SATA Festplatte gibt, muss diese gelöscht werden und eine neue VirtIO Platte angelegt werden.
 
-2. **Netzwerk (NIC):** Wähle die Netzwerkkarte an und ändere das "Device model" (Gerätemodell) ebenfalls auf **virtio**.
+1. **Netzwerk (NIC):** Wähle die Netzwerkkarte an und ändere das "Device model" (Gerätemodell) ebenfalls auf **virtio**.
 
-3. **Zweites CD-ROM-Laufwerk hinzufügen:** Klicke auf "Hardware hinzufügen" -> "Speicher" -> "CDROM-Gerät". Binde hier deine heruntergeladene **virtio-win.iso** ein.
+2. **Zweites CD-ROM-Laufwerk hinzufügen:** Klicke auf "Hardware hinzufügen" -> "Speicher" -> "CDROM-Gerät". Binde hier deine heruntergeladene **virtio-win.iso** ein.
 
-4. **Display Spice:** Wähle links "Display Spice". Setze den "Listen type" auf **None** (Keine) und aktiviere unten das Häkchen bei **OpenGL**. Wähle in der Dropdown-Liste deine Grafikkarte aus.
+3. **Display Spice:** Wähle links "Display Spice". Setze den "Listen type" auf **None** (Keine) und aktiviere unten das Häkchen bei **OpenGL**. Wähle in der Dropdown-Liste deine Grafikkarte aus.
 
-5. **Video (Grafikkarte):** Wähle links "Video QXL" (oder ähnlich). Ändere das Modell auf **Virtio** und setze rechts das Häkchen bei **3D-Beschleunigung (3D acceleration)**.
+4. **Video (Grafikkarte):** Wähle links "Video QXL" (oder ähnlich). Ändere das Modell auf **Virtio** und setze rechts das Häkchen bei **3D-Beschleunigung (3D acceleration)**.
 
 Klicke oben links auf **Installation beginnen**.
 
@@ -320,5 +380,3 @@ Ihr Linux-Home-Verzeichnis erscheint nun als vollwertige Festplatte im Windows-E
 # Mehrere Bildschirme
 
 Um mit mehreren Bildschirmen zu arbeiten:
-
-    
