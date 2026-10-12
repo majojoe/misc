@@ -1,0 +1,46 @@
+http:
+  middlewares:
+    large-upload-limit:
+      buffering:
+        maxRequestBodyBytes: 2147483648
+        memRequestBodyBytes: 10485760
+
+    security-headers:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        forceSTSHeader: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+
+  routers:
+    jenkins-router:
+      rule: "Host(`test01.localhost`)"
+      service: jenkins-service
+      entryPoints:
+        - websecure
+      middlewares:
+        - security-headers
+        - large-upload-limit
+      tls: {}  # Aktiviert TLS für diesen Router (nutzt die globalen Zertifikate unten)
+
+  services:
+    jenkins-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:8080"
+        passHostHeader: true
+
+tls:
+  certificates:
+    - certFile: "./certs/cert.crt"
+      keyFile: "./certs/cert.key"
+#    - certFile: "/etc/traefik/certs/cert.crt"
+#      keyFile: "/etc/traefik/certs/cert.key"
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "./certs/cert.crt"
+        keyFile: "./certs/cert.key"
+#        certFile: "/etc/traefik/certs/cert.crt"
+#        keyFile: "/etc/traefik/certs/cert.key"

@@ -1,0 +1,26 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+
+  websecure:
+    address: ":443"
+    transport:
+      respondingTimeouts:
+        readTimeout: 600s
+        writeTimeout: 600s
+        idleTimeout: 300s
+
+providers:
+  file:
+    filename: "./traefik-dynamic.yaml"
+#    filename: "/etc/traefik/traefik-dynamic.yaml"    
+    watch: true
