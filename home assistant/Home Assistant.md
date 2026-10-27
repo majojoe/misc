@@ -117,3 +117,11 @@ Nähere Informationen zum HACS Setup siehe: https://hacs.xyz/docs/use/configurat
 - nach *evcc - Solar Charging by marq24* suchen
 
 - Die Integration herunterladen
+
+- Unter Einstellungen -> Geräte & Dienste -> Integration hinzufügen -> evcc
+
+- evcc konfigurieren
+
+![](img/2026-10-27-22-13-06-image.png)
+
+![](img/2026-10-27-22-13-31-image.png)
